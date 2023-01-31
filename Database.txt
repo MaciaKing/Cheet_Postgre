@@ -1,0 +1,123 @@
+https://www.youtube.com/watch?v=RySuQtMiBxQ    create user
+
+
+
+entrar database --> sudo -u postgres psql -d tests
+
+\dt --> resumen BDdt
+\df --> veure funcions
+\dL --> veure llenguatges instalats
+\l --> veure totes les BD creades
+\d from_splunk;  --> check the data type of the columns in a given table
+\d from_splunk.<table>; --> per mirar una cosa
+\du o \du+ --> listar todos los usuarios que tenemos en postgres
+\c <name_db> --> Cambiar a la BD
+SELECT * FROM data1--> query
+
+__________________________________________________________________
+Database creation:
+CREATE DATABASE <name_db>
+
+sudo -u postgresql psql -d maciaKINGprova -U node_red_user -p
+__________________________________________________________________
+sudo systemctl start postgresql.service
+sudo systemctl stop postgresql.service
+
+__________________________________________________________________
+node-red-contrib-postgresql
+Create user for postgres
+CREATE USER soar PASSWORD 'soar';
+
+Add user to a database:
+GRANT ALL PRIVILEGES ON DATABASE maciaproba TO node_red_user;
+grant usage on all sequences in schema public to soar;
+GRi/ANT ALL PRIVILEGES ON TABLE alert TO soar;
+GRANT ALL PRIVILEGES ON TABLE event TO soar;
+
+
+__________________________________________________________________
+ENTER TO DATABASE LIKE USER
+psql -h 127.0.0.1 -U soar prueba;
+__________________________________________________________________
+BORRAR USUARIO DE POSTGREE
+REASSIGN OWNED BY myuser TO postgres;  Assignamos todos los permisos a postgrees
+DROP OWNED BY myuser; Borramos todo lo suyo
+DROP USER myuser; borramos el usuario
+__________________________________________________________________
+CREACION DE UN USUARIO DE POSTGREE
+
+
+__________________________________________________________________
+
+Per crear una funciÓ:
+https://stackoverflow.com/questions/43460071/create-a-postgresql-function-from-the-command-line
+ psql -h localhost  -d tests -f create_my_function.sql
+
+sudo -u postgres psql -d tests -f fun2.sql
+sudo -u postgres psql  -f fun2.sql
+
+sudo -u postgres psql -d soa -f fun2.sql
+
+
+--------------------------------------
+Per executar sa funció que ja he creat
+  SELECT fun1(51);
+--------------------------------------
+Diferencia FUNCTION i PROCEDURE.
+	--> FUNCTION devuelve un valor.
+	--> PROCEDURE solo ejecuta comandos.
+
+
+CREATE OR REPLACE FUNCTION setNewAlert()
+  RETURNS trigger AS
+$$
+BEGIN
+    UPDATE alerta SET status = 'new' WHERE status = '';
+END;
+$$
+LANGUAGE 'plpgsql';
+
+CREATE TRIGGER trigger_setNewAlert AFTER INSERT ON alerta
+     FOR EACH STATEMENT EXECUTE PROCEDURE setNewAlert();
+
+
+
+
+
+
+INSERT INTO alerta (incident_id,title,index_,host,tag,iduser,urgency) 
+                   ('',          ' ',   ' ',   ' ', ' ', ' ', 1)
+
+
+
+
+//Primera Opció
+SELECT DISTINCT alerta.incident_id, alerta.alert_time, alerta.alert, status, alerta.urgency, fields_action, fields_index, alerta.comment_, usr.name  FROM event 
+JOIN alerta ON event.incident_id=alerta.incident_id AND CAST(alerta.alert_time AS DATE) BETWEEN NOW() - INTERVAL '24 HOURS' AND NOW() 
+JOIN usr ON alerta.idUser=usr.idUser 
+ORDER BY alerta.alert_time DESC;
+
+//Segona Opció
+SELECT DISTINCT alerta.incident_id, alerta.alert_time, alerta.alert, status, alerta.urgency, fields_action, fields_index, alerta.comment_, usr.name  FROM event 
+JOIN alerta ON event.incident_id=alerta.incident_id AND CAST(alerta.alert_time AS DATE) BETWEEN NOW() - INTERVAL '1 DAY' AND NOW() 
+JOIN usr ON alerta.idUser=usr.idUser 
+ORDER BY alerta.alert_time DESC;
+
+curl http://172.20.200.176:8088/services/collector -H "Authorization: Splunk eyJraWQiOiJzcGx1bmsuc2VjcmV0IiwiYWxnIjoiSFM1MTIiLCJ2ZXIiOiJ2MiIsInR0eXAiOiJzdGF0aWMifQ.eyJpc3MiOiJqYW1lcy5hbHZhcmV6IGZyb20gY3liZXJzcGx1bmtpbmRleDAxIiwic3ViIjoiamFtZXMuYWx2YXJleiIsImF1ZCI6IlVwZGF0ZSBhbGVydHMgaW4gb21uaWFjY2Vzc19hbGVydHMgaW5kZXgiLCJpZHAiOiJMREFQOi8vT21uaWFjY2VzcyIsImp0aSI6IjIyNjZmOTM1YzE2ZmEzZjEwNDgzYTVmZWFlOGM1OWJhNmY3YzBlMDg2NzRkZDk2YTdkY2E0OGQwY2JmZGE4NjUiLCJpYXQiOjE2NzQ0NjQwOTcsImV4cCI6MTY3NzA1NjA5NywibmJyIjoxNjc0NDY0MDk3fQ.SzWqokhQqZIAVFSLUt38UxeQys2NRdvR2j_KJiJt48ybMoxYRda_fAarwPQMpJKc8porOyeGDhUDD0o1UKy7-A" -d '{"index":"alerts_omniaccess", "event": "HOLA DESDE EL SOAR"}'
+
+
+
+
+
+
+
+
+
+
+
+
+SELECT alerta.incident_id, alerta.alert_time, alerta.alert, status, alerta.urgency, fields_action, fields_index, alerta.comment_, usr.name  FROM event JOIN alerta ON event.incident_id=alerta.incident_id AND CAST(alerta.alert_time AS DATE) BETWEEN NOW() - INTERVAL '30 DAY' AND NOW() JOIN usr ON alerta.idUser=usr.idUser ORDER BY alerta.alert_time DESC";
+
+
+
+curl http://172.20.200.176:8088/services/collector -H "Authorization: Splunk eyJraWQiOiJzcGx1bmsuc2VjcmV0IiwiYWxnIjoiSFM1MTIiLCJ2ZXIiOiJ2MiIsInR0eXAiOiJzdGF0aWMifQ.eyJpc3MiOiJqYW1lcy5hbHZhcmV6IGZyb20gY3liZXJzcGx1bmtpbmRleDAxIiwic3ViIjoiamFtZXMuYWx2YXJleiIsImF1ZCI6IlVwZGF0ZSBhbGVydHMgaW4gb21uaWFjY2Vzc19hbGVydHMgaW5kZXgiLCJpZHAiOiJMREFQOi8vT21uaWFjY2VzcyIsImp0aSI6IjIyNjZmOTM1YzE2ZmEzZjEwNDgzYTVmZWFlOGM1OWJhNmY3YzBlMDg2NzRkZDk2YTdkY2E0OGQwY2JmZGE4NjUiLCJpYXQiOjE2NzQ0NjQwOTcsImV4cCI6MTY3NzA1NjA5NywibmJyIjoxNjc0NDY0MDk3fQ.SzWqokhQqZIAVFSLUt38UxeQys2NRdvR2j_KJiJt48ybMoxYRda_fAarwPQMpJKc8porOyeGDhUDD0o1UKy7-A" -d '{"index":"alerts_omniaccess", "event": "HOLA DESDE EL SOAR"}'
